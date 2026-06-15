@@ -20,5 +20,5 @@ monitor.log
 Thumbs.db
 .DS_Store
 
-# Large deploy zips (keep one tracked)
-# deploy/*.zip is intentionally tracked for release
+# Deploy packages (use Releases instead)
+deploy/
