@@ -1,0 +1,14 @@
+{
+  "database": {
+    "searchPaths": [
+      "C:/Users/PC/Downloads/OneDrive_2_2026-6-10/crc_log_db.db"
+    ]
+  },
+  "teams": {
+    "alertTypes": ["abnormal"],
+    "webhooks": [
+      { "name": "Test", "url": "https://defaultf54277c9dafe44aa85a473d5c7c524.50.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/75642664a0484bf8997d4d0c8a0c1fd8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3w8FMADBSh-oa26Mv2YTIkCX9RYBXsVaMQLU0cKBDx8", "enabled": true }
+    ]
+  },
+  "sync": { "pollIntervalMinutes": 5 }
+}

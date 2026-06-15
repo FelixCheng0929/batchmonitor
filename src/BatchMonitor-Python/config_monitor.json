@@ -1,0 +1,15 @@
+{
+  "database": {
+    "searchPaths": [
+      "C:/source/monitor/v3/crc_log_db.db",
+      "../crc_log_db.db"
+    ]
+  },
+  "teams": {
+    "webhookUrl": "YOUR_WEBHOOK_URL_HERE"
+  },
+  "sync": {
+    "watermarkFile": "sync_watermark.json",
+    "pollIntervalMinutes": 5
+  }
+}

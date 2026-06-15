@@ -1,0 +1,24 @@
+﻿# Build artifacts
+bin/
+obj/
+publish/
+*.user
+*.suo
+
+# Runtime files
+*.log
+sent_ids.json
+sync_watermark.json
+monitor.log
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Large deploy zips (keep one tracked)
+# deploy/*.zip is intentionally tracked for release
