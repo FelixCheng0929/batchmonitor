@@ -117,7 +117,7 @@ public class BatchExecutionDB
         using var cmd = new SQLiteCommand(sql, conn);
         foreach (var (n, v) in p) cmd.Parameters.AddWithValue(n, (object?)v ?? DBNull.Value);
         using var r = cmd.ExecuteReader();
-        while (r.Read()) l.Add(new() { Id = r.GetInt64(0), BatchId = r.GetString(1), BatchName = r.IsDBNull(2) ? null : r.GetString(2), StartTime = r.IsDBNull(3) ? null : r.GetString(3), EndTime = r.IsDBNull(4) ? null : r.GetString(4), Duration = r.GetInt64(5), TotalCount = r.GetInt64(6), SuccessCount = r.GetInt64(7), ErrorCount = r.GetInt64(8), WarningCount = r.GetInt64(9), Result = r.GetString(10), ErrorMsg = r.IsDBNull(11) ? null : r.GetString(11), LogFile = r.IsDBNull(12) ? null : r.GetString(12), ExecDayNo = r.GetInt64(13), CreateTime = r.IsDBNull(14) ? null : r.GetString(14) });
+        while (r.Read()) l.Add(new() { Id = r.GetInt64(0), BatchId = r.GetString(1), BatchName = r.IsDBNull(2) ? null : r.GetString(2), StartTime = r.IsDBNull(3) ? null : r.GetString(3), EndTime = r.IsDBNull(4) ? null : r.GetString(4), Duration = r.IsDBNull(5) ? 0 : r.GetInt64(5), TotalCount = r.IsDBNull(6) ? 0 : r.GetInt64(6), SuccessCount = r.IsDBNull(7) ? 0 : r.GetInt64(7), ErrorCount = r.IsDBNull(8) ? 0 : r.GetInt64(8), WarningCount = r.IsDBNull(9) ? 0 : r.GetInt64(9), Result = r.GetString(10), ErrorMsg = r.IsDBNull(11) ? null : r.GetString(11), LogFile = r.IsDBNull(12) ? null : r.GetString(12), ExecDayNo = r.IsDBNull(13) ? 0 : r.GetInt64(13), CreateTime = r.IsDBNull(14) ? null : r.GetString(14) });
         return l;
     }
 }
