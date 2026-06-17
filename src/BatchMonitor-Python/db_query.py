@@ -86,9 +86,9 @@ class BatchExecutionDB:
         finally:
             conn.close()
 
-    # ── New: Lookup in_out from batch_job_mapping table ──────────────
+    # ── New: Lookup in_out from batch_info_master table ──────────────
     def get_in_out_by_job_id(self, job_id):
-        """Look up the in_out value for a given job_id from batch_job_mapping.
+        """Look up the in_out value for a given job_id from batch_info_master.
         If multiple rows exist for the same job_id, prefers the one with exec_log='有'.
         Returns the in_out string (e.g. 'IN' / 'OUT') or None if not found.
         """
@@ -96,10 +96,14 @@ class BatchExecutionDB:
         try:
             # Prefer exec_log='有' when multiple rows match the same job_id
             row = conn.execute(
-                "SELECT in_out FROM batch_job_mapping WHERE job_id = ? ORDER BY CASE WHEN exec_log = '有' THEN 0 ELSE 1 END, no ASC LIMIT 1",
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='batch_info_master'").fetchone()
+            if not row or row[0] == 0:
+                return "查找表失败"
+            row = conn.execute(
+                "SELECT in_out FROM batch_info_master WHERE batch_id = ? ORDER BY CASE WHEN exec_log = '有' THEN 0 ELSE 1 END LIMIT 1",
                 (job_id,)
             ).fetchone()
-            return row[0] if row else None
+            return row[0] if row else "当前batch info 中无法找到匹配信息"
         finally:
             conn.close()
 

@@ -2,7 +2,7 @@
 """
 init_job_mapping.py
 ===================
-Initialize the batch_job_mapping table in the existing batch_monitor DB.
+Initialize the batch_info_master table in the existing batch_monitor DB.
 Creates table if not exists and inserts all job mapping data.
 
 Usage:
@@ -26,7 +26,7 @@ DEFAULT_SEARCH_PATHS = [
 
 # ── Table definition ──────────────────────────────────────────────
 CREATE_TABLE_SQL = """
-CREATE TABLE IF NOT EXISTS batch_job_mapping (
+CREATE TABLE IF NOT EXISTS batch_info_master (
     no                  INTEGER PRIMARY KEY,
     job_id              TEXT    NOT NULL,
     name                TEXT,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS batch_job_mapping (
 """
 
 # ── Data ──────────────────────────────────────────────────────────
-# Columns: (no, job_id, name, in_out, exec_log)
+# Columns: (no, batch_id, name, in_out, exec_log)
 # Note: job_id is NOT unique - MST_001 appears twice (no=4,5) with different exec_log.
 # The lookup in db_query.py uses LIMIT 1, so both records exist but only the first
 # match is returned per query. This is fine for in_out lookup since both have "IN".
@@ -172,7 +172,7 @@ DATA = [
 ]
 
 # Index on job_id for faster lookups
-CREATE_INDEX_SQL = "CREATE INDEX IF NOT EXISTS idx_job_mapping_job_id ON batch_job_mapping(job_id);"
+CREATE_INDEX_SQL = "CREATE INDEX IF NOT EXISTS idx_batch_info_master_batch_id ON batch_info_master(job_id);"
 
 
 def find_db(search_paths, config_path=None):
@@ -210,7 +210,7 @@ def find_db(search_paths, config_path=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Initialize batch_job_mapping table")
+    parser = argparse.ArgumentParser(description="Initialize batch_info_master table")
     parser.add_argument("--db", default=None, help="Path to SQLite DB file (crc_log_db.db)")
     args = parser.parse_args()
 
@@ -236,7 +236,7 @@ def main():
 
     try:
         # Create table
-        print("\n[1/4] Creating table batch_job_mapping...")
+        print("\n[1/4] Creating table batch_info_master...")
         cur.execute(CREATE_TABLE_SQL)
         print("  OK - Table ready (or already exists)")
 
@@ -246,12 +246,12 @@ def main():
         print("  OK - Index ready")
 
         # Check existing data by primary key (no)
-        cur.execute("SELECT COUNT(*) FROM batch_job_mapping")
+        cur.execute("SELECT COUNT(*) FROM batch_info_master")
         existing = cur.fetchone()[0]
         print(f"\n[3/4] Existing records: {existing}")
 
         # Check which 'no' values already exist
-        cur.execute("SELECT no FROM batch_job_mapping")
+        cur.execute("SELECT no FROM batch_info_master")
         existing_nos = set(row[0] for row in cur.fetchall())
 
         new_rows = [r for r in DATA if r[0] not in existing_nos]
@@ -259,12 +259,12 @@ def main():
 
         if new_rows:
             insert_sql = """
-                INSERT OR IGNORE INTO batch_job_mapping
-                    (no, job_id, name, in_out, exec_log,
+                INSERT OR IGNORE INTO batch_info_master
+                    (no, batch_id, name, in_out, exec_log,
                      hogo_db_physical, hogo_db_logical,
                      middle_table_physical, middle_table_logical,
                      d365_table_physical, d365_table_logical)
-                VALUES (?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL)
+                VALUES (?, ?, ?, ?, ?)
             """
             cur.executemany(insert_sql, new_rows)
             conn.commit()
@@ -276,19 +276,19 @@ def main():
             print(f"  Skipped (already exist by No): {len(skipped_rows)} record(s)")
 
         # Verify
-        cur.execute("SELECT COUNT(*) FROM batch_job_mapping")
+        cur.execute("SELECT COUNT(*) FROM batch_info_master")
         total = cur.fetchone()[0]
-        print(f"\nTotal records in batch_job_mapping: {total}")
+        print(f"\nTotal records in batch_info_master: {total}")
 
         # Show stats
-        cur.execute("SELECT in_out, COUNT(*) FROM batch_job_mapping GROUP BY in_out")
+        cur.execute("SELECT in_out, COUNT(*) FROM batch_info_master GROUP BY in_out")
         print("\nBreakdown by in_out:")
         for row in cur.fetchall():
             print(f"  {row[0]}: {row[1]}")
 
         # Show sample
         print("\nSample data (first 5):")
-        cur.execute("SELECT no, job_id, name, in_out, exec_log FROM batch_job_mapping ORDER BY no LIMIT 5")
+        cur.execute("SELECT no, batch_id, name, in_out, exec_log FROM batch_info_master ORDER BY no LIMIT 5")
         for row in cur.fetchall():
             print(f"  No={row[0]}, job_id={row[1]}, name={row[2]}, in_out={row[3]}, exec_log={row[4]}")
 
@@ -300,7 +300,7 @@ def main():
         conn.close()
 
     print("\n=== DONE ===")
-    print("batch_job_mapping table is ready.")
+    print("batch_info_master table is ready.")
 
 
 if __name__ == "__main__":
