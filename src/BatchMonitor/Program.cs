@@ -132,8 +132,9 @@ public class TeamsSender
         var date = FmtDate(r.StartTime);
         var tr = $"{FmtTime(r.StartTime)} / {FmtTime(r.EndTime)}";
         var copyText = $"JOBID: {r.BatchId}\r\nIN/OUT: {r.InOut ?? "N/A"}\r\n\u65e5\u4ed8: {date}\r\n\u767a\u751f\u6642\u523b: {tr}\r\n\u7d50\u679c: \u7570\u5e38\r\n\u30a8\u30e9\u30fc\u4ef6\u6570: {r.ErrorCount}\r\n\u8b66\u544a\u4ef6\u6570: {r.WarningCount}\r\n\u5bfe\u8c61\u4ef6\u6570: {r.TotalCount}\r\n\u6210\u529f\u4ef6\u6570: {r.SuccessCount}\r\n\u6240\u8981\u6642\u9593: {r.Duration}s\r\n\u30ed\u30b0\u30d5\u30a1\u30a4\u30eb: {r.LogFile}\r\n\u540c\u671f\u77ac\u523b: {sync}";
-        if (!string.IsNullOrEmpty(r.ErrorMsg)) copyText += $"\r\n\r\n\u3010\u7570\u5e38\u5185\u5bb9\u3011\r\n{r.ErrorMsg}";
-        var recordPayload = new Dictionary<string, object?> { ["title"]=r.BatchId,["dbId"]=r.Id,["batchName"]=r.BatchName,["startTime"]=FmtDt(r.StartTime),["endTime"]=FmtDt(r.EndTime),["duration"]=r.Duration,["totalCount"]=r.TotalCount,["successCount"]=r.SuccessCount,["errorCount"]=r.ErrorCount,["warningCount"]=r.WarningCount,["result"]=r.Result,["errorMsg"]=r.ErrorMsg,["logFile"]=r.LogFile,["execDayNo"]=r.ExecDayNo,["syncTime"]=sync,["inOut"]=r.InOut };
+        var sanitizedErrorMsg = r.ErrorMsg?.Replace('\r', ' ').Replace('\n', ' ');
+        if (!string.IsNullOrEmpty(r.ErrorMsg)) copyText += $"\r\n\r\n\u3010\u7570\u5e38\u5185\u5bb9\u3011\r\n{sanitizedErrorMsg}";
+        var recordPayload = new Dictionary<string, object?> { ["title"]=r.BatchId,["dbId"]=r.Id,["batchName"]=r.BatchName,["startTime"]=FmtDt(r.StartTime),["endTime"]=FmtDt(r.EndTime),["duration"]=r.Duration,["totalCount"]=r.TotalCount,["successCount"]=r.SuccessCount,["errorCount"]=r.ErrorCount,["warningCount"]=r.WarningCount,["result"]=r.Result,["errorMsg"]=sanitizedErrorMsg,["logFile"]=r.LogFile,["execDayNo"]=r.ExecDayNo,["syncTime"]=sync,["inOut"]=r.InOut };
         var body = new List<object> { new { type="TextBlock",text=title,weight="bolder",size="large",color,wrap=true }, new { type="TextBlock",text=copyText,wrap=true,spacing="medium",fontType="monospace" } };
         // Build record URL for Excel link
         var recordUrl = !string.IsNullOrEmpty(excelBaseUrl) ? $"{excelBaseUrl}?dbId={r.Id}" : "";
